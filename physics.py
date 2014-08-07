@@ -2,6 +2,7 @@
 Pygame physics simulation
 http://www.petercollingridge.co.uk/pygame-physics-simulation
 """
+import random
 import pygame
 
 
@@ -23,8 +24,17 @@ screen = pygame.display.set_mode((width, height))
 screen.fill(background_colour)
 pygame.display.set_caption('Ph sim')
 
-my_first_particle = Particle((150, 50), 15)
-my_first_particle.display()
+number_of_particles = 10
+my_particles = []
+
+for n in range(number_of_particles):
+    size = random.randint(10, 20)
+    x = random.randint(size, width-size)
+    y = random.randint(size, height-size)
+    my_particles.append(Particle((x, y), size))
+
+for particle in my_particles:
+    particle.display()
 
 pygame.display.flip()
 
