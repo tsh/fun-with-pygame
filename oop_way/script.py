@@ -6,7 +6,9 @@ pygame with OOP
 import pygame
 from pygame.locals import *
 
-class App:
+import cevent
+
+class App(cevent.CEvent):
     def __init__(self):
         self._running = True
         self._display_surf = None
@@ -19,9 +21,8 @@ class App:
         self._running = True
         self._image_surf = pygame.image.load("ship.jpg").convert()
 
-    def on_event(self, event):
-        if event.type == QUIT:
-            self._running = False
+    def on_exit(self):
+        self._running = False
 
     def on_loop(self):
         pass
