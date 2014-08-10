@@ -13,7 +13,7 @@ background_colour = (255,255,255)
 
 # Sim constants
 gravity = (math.pi, 0.002)
-number_of_particles = 1
+number_of_particles = 3
 drag = 0.999  # air resistance - the faster a particle is moving, the more speed is lost.
 elasticity = 0.75 # loss of speed a particle experiences when it hits a boundary.
 
@@ -24,6 +24,16 @@ def addVectors((angle1, length1), (angle2, length2)):
     length = math.hypot(x, y)
     angle = 0.5 * math.pi - math.atan2(y, x)
     return angle, length
+
+
+def findParticle(particles, x, y):
+    """ Test all the particles to see whether the distance from the mouse
+        to particle's centre is less than that particle's size.
+    """
+    for p in particles:
+        if math.hypot(p.x-x, p.y-y) <= p.size:
+            return p
+    return None
 
 
 class Particle():
@@ -41,9 +51,9 @@ class Particle():
 
     def move(self):
         (self.angle, self.speed) = addVectors((self.angle, self.speed), gravity)
-        self.speed *= drag
         self.x += math.sin(self.angle) * self.speed
         self.y -= math.cos(self.angle) * self.speed
+        self.speed *= drag
 
     def bounce(self):
         """
@@ -58,24 +68,24 @@ class Particle():
         # self.x = 2*(width - self.size) - self.x
 
         if self.x > width - self.size:
-            self.speed *= elasticity
             self.x = 2*(width - self.size) - self.x
             self.angle = - self.angle
+            self.speed *= elasticity
 
         elif self.x < self.size:
-            self.speed *= elasticity
             self.x = 2*self.size - self.x
             self.angle = - self.angle
+            self.speed *= elasticity
 
         if self.y > height - self.size:
-            self.speed *= elasticity
             self.y = 2*(height - self.size) - self.y
             self.angle = math.pi - self.angle
+            self.speed *= elasticity
 
         elif self.y < self.size:
-            self.speed *= elasticity
             self.y = 2*self.size - self.y
             self.angle = math.pi - self.angle
+            self.speed *= elasticity
 
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Pygame')
@@ -93,11 +103,24 @@ for n in range(number_of_particles):
 
     my_particles.append(particle)
 
+selected_particle = None
 running = True
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            (mouseX, mouseY) = pygame.mouse.get_pos()
+            selected_particle = findParticle(my_particles, mouseX, mouseY)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            selected_particle = None
+
+    if selected_particle:
+        (mouseX, mouseY) = pygame.mouse.get_pos()
+        dx = mouseX - selected_particle.x
+        dy = mouseY - selected_particle.y
+        selected_particle.angle = 0.5*math.pi + math.atan2(dy, dx)
+        selected_particle.speed = math.hypot(dx, dy) * 0.1
 
     screen.fill(background_colour)
 
@@ -105,4 +128,5 @@ while running:
         particle.move()
         particle.bounce()
         particle.display()
+
     pygame.display.flip()
