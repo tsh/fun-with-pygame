@@ -9,7 +9,7 @@ import pygame
 
 
 background_colour = (255,255,255)
-(width, height) = (300, 200)
+(width, height) = (400, 400)
 
 
 class Particle():
@@ -28,6 +28,25 @@ class Particle():
     def move(self):
         self.x += math.sin(self.angle) * self.speed
         self.y -= math.cos(self.angle) * self.speed
+
+    def bounce(self):
+        # check whether particle move beyond the window boundary,
+        # and change it coordinates appropriately.
+        if self.x > width - self.size:
+            self.x = 2*(width - self.size) - self.x
+            self.angle = - self.angle
+
+        elif self.x < self.size:
+            self.x = 2*self.size - self.x
+            self.angle = - self.angle
+
+        if self.y > height - self.size:
+            self.y = 2*(height - self.size) - self.y
+            self.angle = math.pi - self.angle
+
+        elif self.y < self.size:
+            self.y = 2*self.size - self.y
+            self.angle = math.pi - self.angle
 
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption('Tutorial 4')
@@ -56,5 +75,6 @@ while running:
 
     for particle in my_particles:
         particle.move()
+        particle.bounce()
         particle.display()
     pygame.display.flip()
