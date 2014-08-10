@@ -30,8 +30,17 @@ class Particle():
         self.y -= math.cos(self.angle) * self.speed
 
     def bounce(self):
-        # check whether particle move beyond the window boundary,
-        # and change it coordinates appropriately.
+        """
+         check whether particle move beyond the window boundary,
+         and change it coordinates appropriately.
+         """
+        # Calculate by how much particle has exceeded the boundary
+        # d = self.x - (width - self.size)
+        # then reflect the position in the boundary (i.e. bounce it)
+        # self.x = (width - self.size) - d
+        # This simplifies to:
+        # self.x = 2*(width - self.size) - self.x
+        
         if self.x > width - self.size:
             self.x = 2*(width - self.size) - self.x
             self.angle = - self.angle
