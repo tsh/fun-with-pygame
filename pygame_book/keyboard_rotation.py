@@ -25,26 +25,33 @@ while True:
     movement_direction = 0.
 
     if pressed_keys[K_LEFT]:
-        rotation_direction = +1.0
+        rotation_direction += 1.0
     if pressed_keys[K_RIGHT]:
-        rotation_direction = -1.0
+        rotation_direction -= 1.0
     if pressed_keys[K_UP]:
         movement_direction = +1.0
     if pressed_keys[K_DOWN]:
         movement_direction = -1.0
 
     screen.blit(background, (0,0))
+
     rotated_sprite = pygame.transform.rotate(sprite, sprite_rotation)
     w, h = rotated_sprite.get_size()
     sprite_draw_pos = Vector2(sprite_pos.x-w/2, sprite_pos.y-h/2)
     screen.blit(rotated_sprite, sprite_draw_pos)
+
     time_passed = clock.tick()
     time_passed_seconds = time_passed / 1000.0
+
     sprite_rotation += rotation_direction * sprite_rotation_speed * time_passed_seconds
+
     heading_x = sin(sprite_rotation*pi/180.0)
     heading_y = cos(sprite_rotation*pi/180.0)
     heading = Vector2(heading_x, heading_y)
     heading *= movement_direction
+
+
     sprite_pos+= heading * sprite_speed * time_passed_seconds
+
     pygame.display.update()
 

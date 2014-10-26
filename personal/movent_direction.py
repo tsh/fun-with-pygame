@@ -1,64 +1,57 @@
-"""
-http://thepythongamebook.com/en:pygame:step017
-"""
-import math
 import pygame
-
-GRAD = math.pi / 180
+from pygame.locals import *
+from sys import exit
+import os
+import math
+from vector2 import Vector2
 
 pygame.init()
 screen = pygame.display.set_mode((640, 480), 0, 32)
 
-class Player(object):
+class Ship(object):
     def __init__(self):
-        self.x = 25
-        self.y = 25
-        self.speed = 2.0
-        self.turning = 2
-        self.angle = 1
-        self.dx = 0
-        self.dy = 0
+        self.main_image = pygame.image.load(os.path.join("..", "assets", "ship.jpg")).convert()
+        self.image = self.main_image  # we need copy for rotating sprite
+        self.rect = self.image.get_rect()
+        self.rect.center = (320, 240)
+        self.dir = 0
+        self.sprite_pos = Vector2(200, 150)
 
-    def calculate_position(self):
-        dx = math.sin(self.angle) * self.speed
-        dy = math.cos(self.angle) * self.speed
-        self.x += dx
-        self.y += dy
-        print 'dx: ', dx, ';   dy: ', dy,';   x: ', self.x, ';   y: ', self.y
+    def update(self, dt, rdir, mdir):
+        rotated_sprite = pygame.transform.rotate(self.main_image, self.dir)
+        w, h = rotated_sprite.get_size()
+        sprite_draw_pos = Vector2(self.sprite_pos.x-w/2, self.sprite_pos.y-h/2)
+        screen.blit(rotated_sprite, sprite_draw_pos)
 
-p = Player()
+        self.dir += rdir * 45 * dt
+
+        dx = math.sin(self.dir*math.pi/180)
+        dy = math.cos(self.dir*math.pi/180)
+        v = Vector2(dx, dy)
+        v *= mdir
+        self.sprite_pos+= v * 50 * dt
+
+ship = Ship()
+clock = pygame.time.Clock()
 
 while True:
+    time_passed = clock.tick() / 1000.0
+
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if event.type == QUIT:
             exit()
 
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                ddx = -math.cos(p.angle*GRAD)
-                ddy = +math.sin(p.angle*GRAD)
+    pressed_keys = pygame.key.get_pressed()
+    rdir = 0.
+    mdir = 0.
+    if pressed_keys[K_LEFT]:
+        rdir += 1
+    if pressed_keys[K_RIGHT]:
+        rdir -= 1
+    if pressed_keys[K_UP]:
+        mdir -= 1
+    if pressed_keys[K_DOWN]:
+        mdir += 1
 
-                p.dx += ddx * p.speed
-                p.dy += ddy * p.speed
-
-                p.x += p.dx
-                p.y += p.dy
-
-            if event.key == pygame.K_RIGHT:
-                ddx = +math.cos(p.angle*GRAD)
-                ddy = -math.sin(p.angle*GRAD)
-
-                p.dx += ddx * p.speed
-                p.dy += ddy * p.speed
-
-                p.x += p.dx
-                p.y += p.dy
-
-
-    # screen, coordinates, x, y, size, thickness
-    pygame.draw.circle(screen, (0,0,255), (int(p.x), int(p.y)), 20, 2)
-    pygame.display.flip()
-
-
-    screen.fill((255, 255, 255))
-
+    ship.update(time_passed, rdir, mdir)
+    pygame.display.update()
