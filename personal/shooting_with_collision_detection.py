@@ -38,8 +38,10 @@ class Target(object):
     def __init__(self):
         self.image = pygame.image.load(os.path.join("..", "assets", "ship.jpg")).convert()
         self.sprite_pos = Vector2(250, 50)
+        self.rect = self.image.get_rect()
 
     def update(self, surface):
+        self.rect.x, self.rect.y = self.sprite_pos.x, self.sprite_pos.y
         surface.blit(self.image, self.sprite_pos)
 
 
@@ -51,8 +53,11 @@ class Bullet(object):
         self.y = y
         self.speed = 110
         self.angle = angle
+        self.rect = self.main_image.get_rect()
 
     def update(self, surface, dt):
+        self.rect.x= self.x
+        self.rect.y = self.y
         dx = -math.sin(self.angle*(math.pi / 180.0)) *self.speed*dt
         dy = -math.cos(self.angle*(math.pi / 180.0)) *self.speed*dt
         self.x += dx
@@ -67,7 +72,7 @@ bullets = []
 target = Target()
 
 while True:
-    time_passed = clock.tick() / 1000.0
+    time_passed = clock.tick(50) / 1000.0
 
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -90,6 +95,8 @@ while True:
     ship.update(time_passed, rdir, mdir)
     target.update(screen)
     for bullet in bullets:
+        if bullet.rect.colliderect(target.rect):
+            print "hit"
         bullet.update(screen, time_passed)
     pygame.display.update()
     screen.fill((0, 0, 0))
